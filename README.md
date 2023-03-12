@@ -1,70 +1,79 @@
 # ESPHome custom component for Linptech G6L-WIFI (linp-doorbell-g04)
 
-## Background
-The Linptech G6L-WIFI is a wifi doorbell with a self-powered button.  It's part of the Mijia (Xiaomi smart home) ecosystem, but it unfortunately doesn't seem to announce events (such as the button being pressed) on the local network.  As such, this project aims to provide replacement firmware to enable full local control via [ESPHome](https://esphome.io/) - which provides for simple integration with [Home Assistant](https://www.home-assistant.io/).
+## 本仓库forked from [pauln/esphome-linp-doorbell-g04](https://github.com/pauln/esphome-linp-doorbell-g04)，加以翻译及内容修改。
 
-As of early 2022, the latest version is the `linp-doorbell-g04`, which no longer contains a secondary microcontroller to handle the basic doorbell functionality; the ESP32 is now connected directly to the RF receiver and the doorbell chime chip.  If you have the earlier `linp-doorbell-g03` version with an STM8S005K6 microcontroller, see the [linp-doorbell-g03](https://github.com/pauln/esphome-linp-doorbell-g03/tree/feature/external_components) repository for a custom component for your device.
+## 背景
+领普自发电门铃G6L（Linptech G6L-WIFI）是一款带有自发电按钮的wifi门铃。它是Mijia（小米智能家居）生态系统的一部分，但是，通过各种插件，无法在局域网内找到它的事件（例如按下按钮）。因此，该项目旨在提供替换固件，以通过[ESPHome](https://esphome.io/)实现完全本地控制，然后可以接入[Home Assistant](https://www.home-assistant.io/)，提供了一些简单实体。
+
+<img width="1048" alt="image" src="https://user-images.githubusercontent.com/6293952/224540313-dc5a4e79-ddae-4f08-8e55-280283cfa5dd.png">
+
+截至 2023 年初，最新版本是 linp-doorbell-g04，它不再包含辅助微控制器来处理基本的门铃功能;ESP32 现在直接连接到射频接收器和门铃提示芯片。如果您有带有 STM8S005K6 微控制器的早期 linp-doorbell-g03 版本，请参阅 [linp-doorbell-g03](https://github.com/pauln/esphome-linp-doorbell-g03/tree/feature/external_components) 仓库以获取适用于您设备的自定义组件。
 
  
-## Hardware
-The doorbell's base unit is pressed/clipped together - there are no screws or other fasteners holding it together.  The seam between the two halves can be found running around the perimeter of the device.
+## 硬件
+门铃的接收器是设计的很紧实，没有螺钉或卡扣。从两半的接缝轻轻翘起，然后拉开。
 
-**With the device unplugged**, carefully pry / pull the two halves apart.
+**注意断电！**
 
-Once you've got it open, you'll see an ESP32 module (which handles the wifi/network/cloud control, but not the basic doorbell functionality) with a row of test points beside it, marked (from top to bottom):
+打开后，您会看到一个 ESP32 模块（用于处理 wifi/网络/云控制，但不能处理基本的门铃功能），旁边有一排焊点，标记（从上到下）：
 - RXD0
 - TXD0
 - IO0
 - GND
 - 3.3V
 
-These pads can be used to communicate with the ESP32 via UART serial in order to initially flash ESPHome on to the ESP32.
+这些焊盘可用于通过 UART 串口与 ESP32 通信，以便将 ESPHome 刷写到 ESP32。
 
-If you lift the main circuit board out of the plastic case, you'll find "3.3V" and "GND" pads near the top on the back/bottom, which can be used to power the entire unit instead of the mains.  You can also power it from the 3.3V and GND pads next to the ESP32, but using these back pads can make it easier to use the other pads for flashing the ESP32.  I highly recommend that you power it via one of these sets of pads while working on the doorbell, as it's much safer to use an isolated 3.3V DC supply (I use a 3.3V regulator on the end of a USB cable plugged into a USB charger or battery pack) than to try powering it from the mains while reflashing the ESP32.  I desoldered the mains input wires from the circuit board, which allows the circuit board to be completely removed from the plastic case (if you unplug the speaker or remove it from the plastic case).
+如果将主电路板从塑料外壳中取出，你会在电路板背面的靠中间的位置找到“3.3V”和“GND”焊点，它们可用于为整个装置供电而不是为电源供电。 
+您也可以从 ESP32 旁边的 3.3V 和 GND 焊盘为其供电，但使用这些背焊盘可以更轻松地使用其他焊盘来为 ESP32 充电。 
+我强烈建议您在处理门铃时通过这些垫子中的一组为其供电，因为使用隔离的 3.3V 直流电源更安全（我在插入 USB 的 USB 电缆末端使用 3.3V 稳压器 充电器或电池组），而不是在重新刷写 ESP32 时尝试从电源供电。 （你也可以电路板上拆焊了电源输入线，拔下扬声器，这样电路板就可以完全从塑料外壳中取出）。
 
-## ESP32 quirks
-The ESP32 module used in this device is a single-core variant.  Additionally, the MAC address CRC written to the EFUSE at the factory seems to be incorrect, so a modification to the core libraries is required to disable the reset on MAC CRC check failure.  Recent versions of ESPHome provide configuration options to handle both of these quirks when using the ESP-IDF framework; see `doorbell.yaml` for the appropriate configuration.
+## ESP32 的奇怪问题
+该设备中使用的 ESP32 模块是单核变体。 此外，出厂时写入 EFUSE 的 MAC 地址 CRC 似乎不正确，因此需要修改核心库以禁用 MAC CRC 检查失败时的重置。 
+最新版本的 ESPHome 提供了配置选项来处理使用 ESP-IDF 框架时的这两个问题； 有关适当的配置，请参阅“doorbell.yaml”。
 
-## Requirements for flashing
-- ESPHome
-- A serial-to-USB adapter
+## 刷机要求
+- 安装ESPHome
+- 串口转 USB 转接器
 
-## Configuration
-- Set your own WiFi credentials in the `wifi:` section of the YAML file, so that it knows how to connect to your network.  The example config uses the !secret directive; [see the ESPHome docs for information](https://esphome.io/guides/faq.html) if you're not familiar with this.
-- If you haven't already used a serial logger to get your button IDs from the stock firmware, ensure that you have the dumper enabled (`dump: linptech_g6l` in the `remote_receiver` configuration).
+## 配置
+- 在 YAML 文件的 `wifi:` 部分设置您自己的 WiFi 凭据，以便它知道如何连接到您的网络。 示例配置使用 !secret 指令； [有关信息，请参阅 ESPHome 文档](https://esphome.io/guides/faq.html) 如果您对此不熟悉。
+- 如果您还没有使用串行记录器从库存固件中获取按钮 ID，请确保启用了转储程序（`remote_receiver` 配置中的`dump: linptech_g6l`）。
 
-## Flashing the ESP32
-In order to boot the ESP32 into flash mode (so that you can write ESPHome to it), you'll need to pull the two pins closest the bottom right corner of the ESP32 module to ground; I did this by soldering fine wires to the rightmost pin on the bottom edge, the `IO0` and `GND` test point beside the ESP32, but if you have an easier way to reliably short the two corner pads to ground temporarily, anything which is easy to undo should work fine.
+## 刷写 ESP32
+为了将 ESP32 启动到刷机模式（以便您可以向其写入 ESPHome），您需要将最靠近 ESP32 模块右下角的两个引脚接地； 我通过将细线焊接到底部边缘最右边的引脚、ESP32旁边的“IO0”和“GND”测试点来做到这一点，但是如果你有更简单的方法将两个边角焊盘暂时可靠地短路到地，也可以。
+![image](https://user-images.githubusercontent.com/6293952/224540976-e64cf18d-0446-47ff-baaf-ff145d3db8ef.png)
 
-1. Connect GND, TXD0, RXD0 to a serial-to-USB adapter (making sure to connect the ESP's RXD0 to your adapter's TX (or TXD) pin and the ESP's TXD0 to your adapter's RX (or RXD) pin)
-2. Connect your serial-to-USB adapter to your computer, making note of the port which it shows up on (depending on your OS, this could be something along the lines of COM0 or /dev/ttyUSB0)
-3. Short the corner pads (mentioned above) to GND
-3. Power up the doorbell using the 3.3V and GND pads on the back of the board
-4. Run `esphome doorbell.yaml run` (replacing "doorbell.yaml" with whatever your YAML file is called, if you've called it something else)
-5. Once the compilation is complete, you'll be prompted to choose how to perform the update; choose your serial-to-USB adapter
-6. Once the flashing is complete, unplug the doorbell from the 5V power supply, remove the short from the corner pads to GND, then power it back up to boot normally
-7. The ESP32 should start up and connect to your WiFi network as configured in the yaml file; you can then add it to your Home Assistant and start integrating it into your home automation!
 
-## Configuring your buttons
-Once you've flashed ESPHome (with the dumper enabled), use `esphome logs doorbell.yaml` to connect (via serial or wifi) to the ESP32 and view the log output.  Pressing one of the buttons should result in a log message such as the following:
+1. 将 GND、TXD0、RXD0 连接到串口转 USB 适配器（确保将 ESP 的 RXD0 连接到适配器的 TX（或 TXD）引脚，将 ESP 的 TXD0 连接到适配器的 RX（或 RXD）引脚）
+2. 将您的串口转 USB 适配器连接到您的计算机，记下它显示的端口（取决于您的操作系统，这可能类似于 COM0 或 /dev/ttyUSB0）
+3. 将右下角的2个焊盘（如上所述）短接至 GND
+3. 使用电路板背面的 3.3V 和 GND 焊盘为门铃供电
+4. 运行 `esphome run doorbell.yaml`（将“doorbell.yaml”替换为您的 YAML 文件名称）
+5. 编译完成后，系统会提示您选择如何执行更新； 选择您的串口转 USB 适配器
+6. 刷机完成后，拔掉门铃的5V电源，去掉右下角那对引脚和GND的短接，重新上电即可正常开机
+7. ESP32 应该启动并连接到您在 yaml 文件中配置的 WiFi 网络； 然后您可以将它添加到您的 Home Assistant 并开始将它集成到您的家庭自动化中！
+
+## 配置发射器按钮
+刷入 ESPHome（启用转储程序）后，使用“esphome logs doorbell.yaml”连接（通过串口或 wifi）到 ESP32 并查看日志输出。 按其中一个按钮应该会产生如下日志消息：
 
 `[remote.linptech_g6l:068]: Received Linptech G6L: address=0x123456`
 
-You can then use the part after `address=` (including the `0x` prefix) in a `remote_receiver` binary sensor configuration block (see `doorbell.yaml`).
+然后，您可以在配置文件里的remote_receiver区域 （参见 doorbell.yaml）中使用 address= 之后的部分（包括 0x 前缀）。
 
 ## Home Assistant
-Once you have your doorbell flashed with ESPHome and connected to Home Assistant, you should see the following services appear (if you included them in your configuration):
+使用 ESPHome 刷写门铃并连接到 Home Assistant 后，您应该会看到以下服务出现（如果您将它们包含在您的配置中）：
 
 | Service name  | Description | Parameter 1 | Parameter 2 | Parameter 3 |
 | ------------- | ----------- | ----------- | ----------- | ----------- |
-| `esphome.doorbell_play_tune` | Play a tune/chime | `tune` \[int, 1-40] | `volume` \[int, 1-8] | `mode` \[int, 1-4] |
+| `esphome.doorbell_play_tune` | Play a tune/chime | `乐曲` \[int, 1-40] | `音量` \[int, 1-8] | `模式` \[int, 1-4] |
 | `esphome.doorbell_stop_playing` | Stop the tune/chime, if one is currently playing |  |  |
 
-For a list of the available "tunes", see the table in the [SZY8039B datasheet](https://raw.githubusercontent.com/pauln/esphome-linp-doorbell-g04/main/SZY8039B.pdf).  Your online translation service of choice might provide more meaningful English names for some of the options.
-
-The `mode` parameter isn't especially useful, as in the G6L-WIFI, the LEDs are connected to the ESP32 and not the SZY8039B.  As such, modes 1, 2 and 4 play the music and mode 3 doesn't (which isn't much use).
-
-Note that the `doorbell` prefix on all service names is the name of your ESPHome node, as defined in the `esphome:` block of your yaml file.
+有关可用“曲调”的列表，请参阅 [SZY8039B 数据表](https://github.com/cheny95/esphome-linp-doorbell-g04/blob/main/SZY8039B.pdf) 中的表格。 
 
 
-If these services don't appear in Home Assistant, try power cycling the doorbell so that it reconnects to Home Assistant.  I've found that the services don't seem to appear on first connect, but do on the second.
+`mode` 参数不是特别有用，因为在 G6L-WIFI 中，LED 连接到 ESP32 而不是 SZY8039B。 因此，模式 1、2 和 4 播放音乐而模式 3 不播放（这没什么用）。
+
+请注意，所有服务名称上的 `doorbell` 前缀是您的 ESPHome 节点的名称，如您的 yaml 文件的 `esphome:` 块中所定义。
+
+如果这些服务没有出现在 Home Assistant 中，请尝试重新启动门铃，以便它重新连接到 Home Assistant。
