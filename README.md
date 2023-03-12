@@ -1,6 +1,6 @@
-# ESPHome custom component for Linptech G6L-WIFI (linp-doorbell-g04)
+# 领普自发电门铃G6L-WIFI版基于ESPHome的定制化组件(linp-doorbell-g04)
 
-## 本仓库forked from [pauln/esphome-linp-doorbell-g04](https://github.com/pauln/esphome-linp-doorbell-g04)，加以翻译及内容修改。
+### 本仓库forked from [pauln/esphome-linp-doorbell-g04](https://github.com/pauln/esphome-linp-doorbell-g04)，加以翻译及内容修改。
 
 ## 背景
 领普自发电门铃G6L（Linptech G6L-WIFI）是一款带有自发电按钮的wifi门铃。它是Mijia（小米智能家居）生态系统的一部分，但是，通过各种插件，无法在局域网内找到它的事件（例如按下按钮）。因此，该项目旨在提供替换固件，以通过[ESPHome](https://esphome.io/)实现完全本地控制，然后可以接入[Home Assistant](https://www.home-assistant.io/)，提供了一些简单实体。
