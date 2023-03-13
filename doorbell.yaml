@@ -12,12 +12,11 @@ esp32:
       ignore_efuse_mac_crc: True
 
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+  ssid: 你的 WIFI名
+  password: 你的 WIFI 密码
 
 # Enable Home Assistant API
 api:
-  password: !secret api_password
 
   # Custom services to control the chime chip.
   services:
@@ -38,7 +37,7 @@ api:
 
 # Enable over-the-air updates.
 ota:
-  password: !secret ota_password
+  password: "12345678"
   safe_mode: True
 
 # Enable logging
@@ -47,8 +46,7 @@ logger:
 
 # Import the external component.
 external_components:
-  - source: github://pauln/esphome-linp-doorbell-g04
-    components: [ linptech_g6l ]
+  - source: components
     
 # Add remote protocols for buttons and chime chip.
 linptech_g6l:
